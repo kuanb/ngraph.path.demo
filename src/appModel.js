@@ -106,6 +106,16 @@ function getGraphBBox() {
   return graphBBox;
 }
 
+function randomColor() {
+   let color = '#';
+   for (let i = 0; i < 6; i++){
+      const random = Math.random();
+      const bit = (random * 16) | 0;
+      color += (bit).toString(16);
+   };
+   return color;
+};
+
 function updateRoute() {
   if (!(routeStart.visible && routeEnd.visible)) {
     api.pathInfo.svgPath = '';
@@ -120,7 +130,13 @@ function updateRoute() {
   api.pathInfo.noPath = path.length === 0;
   api.pathInfo.svgPath = getSvgPath(path);
   if (path.length > 0) {
-    api.pathInfo.svgPaths.push(api.pathInfo.svgPath);
+    let pathObj = {
+      'width': Math.round(Math.random() * 100),
+      'path': api.pathInfo.svgPath,
+      'color': randomColor(),
+      'opacity': Math.round(Math.random() * 5)/10 + 0.3,
+    }
+    api.pathInfo.svgPaths.push(pathObj);
   }
 }
 

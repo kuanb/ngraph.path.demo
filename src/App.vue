@@ -12,9 +12,9 @@
       <svg ref='svg' class='svg-overlay absolute'>
         <g class='scene'>
 
-          <path v-for='path in pathInfo.svgPaths' :d='pathInfo.svgPaths' :stroke-width=randomWidth() :stroke=randomColor() stroke-opacity='0.1' fill-opacity='0' fill='transparent' ></path>
+          <path v-for='path in pathInfo.svgPaths' :d='path.path' :stroke-width='path.width' :stroke='path.color' stroke-opacity='0.1' fill-opacity='0' fill='transparent' ></path>
 
-          <path ref='foundPath' :d='pathInfo.svgPath' stroke-width='1x' :stroke=randomColor() fill-opacity='0.05' fill='transparent' ></path>
+          <path ref='foundPath' :d='pathInfo.svgPath' stroke-width='1x' stroke='#6699cc' fill-opacity='0.05' fill='transparent' ></path>
 
           <route-point :point='routeStart' :scale='scale' :r='routeStart.r' v-if='routeStart.visible'></route-point>
           <route-point :point='routeEnd' :scale='scale' :r='routeEnd.r' v-if='routeEnd.visible'></route-point>
@@ -29,16 +29,6 @@ import api from './appModel';
 import SVGContainer from './SVGContainer';
 import RoutePoint from './components/RoutePoint';
 import About from './components/About';
-
-const randomColor = () => {
-   let color = '#';
-   for (let i = 0; i < 6; i++){
-      const random = Math.random();
-      const bit = (random * 16) | 0;
-      color += (bit).toString(16);
-   };
-   return color;
-};
 
 const bus = require('./bus');
 const wgl = require('w-gl');
@@ -77,8 +67,6 @@ export default {
       pathFinder: api.pathFinderSettings,
       graphSettings: api.graphSettings,
       aboutVisible: false,
-      randomColor: randomColor,
-      randomWidth: () => Math.round(Math.random() * 100)
     }
   },
   computed: {
@@ -148,7 +136,7 @@ export default {
 
       let linksCount = graph.getLinksCount();
       let lines = new wgl.WireCollection(linksCount);
-      lines.color = {r: 0, g: 0, b: 0, a: 0.2}
+      lines.color = {r: 0, g: 0, b: 0, a: 0.1}
       graph.forEachLink(function (link) {
         let from = graph.getNode(link.fromId).data;
         let to = graph.getNode(link.toId).data
@@ -161,19 +149,19 @@ export default {
       let runningIntervalFunc = setInterval(() => {
          this.onSceneClick(countTriggers % 100 == 0);
          countTriggers += 1;
-         if (countTriggers > 150) {
+         if (countTriggers > 500) {
            clearInterval(runningIntervalFunc);
            console.log("drawing pt 1 done");
            let runningIntervalPart2 = setInterval(() => {
              this.onSceneClick(true);
              countTriggers += 1;
-             if (countTriggers > 350) {
+             if (countTriggers > 1000) {
                clearInterval(runningIntervalPart2);
                console.log("done drawing");
              }
-           }, 200);
+           }, 150);
          }
-      }, 100)
+      }, 60)
     },
 
     updateSVGElements(svgConntainer) {
