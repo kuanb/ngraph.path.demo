@@ -1,3 +1,5 @@
+Note: Just playing around w/ this demo and modifying it for a personal project/toy...
+
 # ngraph.path demo
 
 [![demo](https://raw.githubusercontent.com/anvaka/ngraph.path/master/docs/seattle.gif)](https://anvaka.github.io/ngraph.path.demo/)

@@ -49,7 +49,7 @@ function loadPositions(fileName, progress) {
 
   function initNodes(points) {
     console.time('add nodes to graph');
-    progress.message = 'Adding nodes to graph'
+    // progress.message = 'Adding nodes to graph'
 
     return new Promise((resolve) => {
       asyncFor(points, addPointToGraph, () => {
@@ -84,7 +84,7 @@ function loadPositions(fileName, progress) {
   function setLinks(buffer) {
     links = new Int32Array(buffer);
 
-    progress.message = 'Adding edges to graph'
+    // progress.message = 'Adding edges to graph'
     console.time('add edges to graph');
     return new Promise((resolve) => {
       asyncFor(links, addLinkToGraph, () => {
@@ -110,7 +110,7 @@ function loadPositions(fileName, progress) {
 
   function reportProgress(name) {
     return function(e) {
-      progress.message = name;
+      // progress.message = name;
       progress.completed = Math.round(e.percent * 100) + '%';
     };
   }

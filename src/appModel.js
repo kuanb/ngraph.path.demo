@@ -23,12 +23,13 @@ const bus = require('./bus');
 
 // First of all, read what we currently have in the query string.
 const qs = queryState({
-  graph: 'amsterdam-roads'
+  graph: 'moscow-roads'
 });
 
 qs.onChange(updateStateFromQueryString);
 
 let graph;      // current graph
+let loadedPoints;
 let graphBBox;  // current bounding box for a graph
 let hetTestTree;       // this tree helps us find graph node under cursor
 let pathFinder;        // currently selected pathfinder
@@ -65,11 +66,11 @@ const api = {
   routeEnd,
   pathInfo: {
     svgPath: '',
+    svgPaths: [],
     noPath: false
   },
 
   handleSceneClick,
-  getRouteHandleUnderCursor,
   clearRoute,
 
   pathFinderSettings: settings.pathFinderSettings,
@@ -101,18 +102,6 @@ function updateSearchAlgorithm() {
   updateRoute();
 }
 
-function getRouteHandleUnderCursor(e, scene) {
-  let transform = scene.getTransform();
-  let scale = transform.scale/scene.getPixelRatio();
-
-  if (routeStart.intersects(e.sceneX, e.sceneY, scale)) {
-    return routeStart;
-  }
-  if (routeEnd.intersects(e.sceneX, e.sceneY, scale)) {
-    return routeEnd;
-  }
-}
-
 function getGraphBBox() {
   return graphBBox;
 }
@@ -133,6 +122,9 @@ function updateRoute() {
 
   api.pathInfo.noPath = path.length === 0;
   api.pathInfo.svgPath = getSvgPath(path);
+  if (path.length > 0) {
+    api.pathInfo.svgPaths.push(api.pathInfo.svgPath);
+  }
 
   stats.lastSearchTook = (Math.round(end * 100)/100) + 'ms';
   stats.pathLength = getPathLength(path);
@@ -184,13 +176,18 @@ function handleSceneClick(e) {
     setRoutePointFormEvent(e, routeStart);
   } else if (!routeEnd.visible) {
     setRoutePointFormEvent(e, routeEnd);
+  } else {
+    clearRoute();
   }
 }
 
 function setRoutePointFormEvent(e, routePointViewModel) {
   if (!hetTestTree) return; // we are not initialized yet.
+  if (!loadedPoints) return;
 
-  let point = findNearestPoint(e.sceneX, e.sceneY)
+  let point = findNearestPoint(
+    loadedPoints[Math.floor(Math.random() * loadedPoints.length)],
+    loadedPoints[Math.floor(Math.random() * loadedPoints.length)])
   if (!point) throw new Error('Point should be defined at this moment');
 
   routePointViewModel.setFrom(point);
@@ -200,6 +197,7 @@ function loadPositions() {
   let graphName = qs.get('graph');
   hetTestTree = null;
   graph = null;
+  loadedPoints = null;
   stats.visible = false;
   api.progress.reset();
 
@@ -214,7 +212,8 @@ function setApplicationModelVariables(loaded) {
   graphBBox = loaded.graphBBox;
   pathFinder = null;
 
-  initHitTestTree(loaded.points);
+  loadedPoints = loaded.points
+  initHitTestTree(loadedPoints);
   initPathfinders();
 
   stats.graphNodeCount = numberWithCommas(graph.getNodesCount());
@@ -232,7 +231,7 @@ function initHitTestTree(loadedPoints) {
     progress(i, total) {
       if (i % 500 !== 0) return;
 
-      api.progress.message = 'Initializing tree for point & click'
+      // api.progress.message = 'Initializing tree for point & click'
       api.progress.completed = Math.round(100 * i/total) + '%';
     },
     done() {
@@ -323,6 +322,7 @@ function findNearestPoint(x, y, maxDistanceToExplore = 2000) {
   if (!hetTestTree) return;
 
   let points = hetTestTree.pointsAround(x, y, maxDistanceToExplore).map(idx => graph.getNode(idx/2))
+  // let points = hetTestTree.pointsAround(x, y, maxDistanceToExplore).map(idx => graph.getNode(Math.round(Math.random() * (graph.getNodesCount()-1) + 1)))
   .sort((a, b) => {
     let da = pointDistance(a.data, x, y);
     let db = pointDistance(b.data, x, y)

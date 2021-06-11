@@ -1,6 +1,6 @@
 <template>
   <g :transform='screenScale'>
-    <circle :r='r' fill='red' stroke='white' :stroke-width='strokeWidth' ></circle>
+    <circle :r='r' fill='#6699CC' fill-opacity="0.3" stroke='white' :stroke-width='strokeWidth' ></circle>
     <text :font-size='fontSize' fill='white' text-anchor='middle' :y='textY' class='no-pointer'>{{symbol}}</text>
   </g>
 </template>
