@@ -148,7 +148,7 @@ export default {
 
       let linksCount = graph.getLinksCount();
       let lines = new wgl.WireCollection(linksCount);
-      lines.color = {r: 0.8, g: 0.8, b: 0.8, a: 0.1}
+      lines.color = {r: 0, g: 0, b: 0, a: 0.35}
       graph.forEachLink(function (link) {
         let from = graph.getNode(link.fromId).data;
         let to = graph.getNode(link.toId).data
