@@ -159,14 +159,21 @@ export default {
       scene.appendChild(lines);
       let countTriggers = 0;
       let runningIntervalFunc = setInterval(() => {
-         this.onSceneClick();
+         this.onSceneClick(countTriggers % 100 == 0);
          countTriggers += 1;
-         if (countTriggers > 1000) {
+         if (countTriggers > 150) {
            clearInterval(runningIntervalFunc);
-           setInterval(this.onSceneClick, 500);
+           console.log("drawing pt 1 done");
+           let runningIntervalPart2 = setInterval(() => {
+             this.onSceneClick(true);
+             countTriggers += 1;
+             if (countTriggers > 350) {
+               clearInterval(runningIntervalPart2);
+               console.log("done drawing");
+             }
+           }, 200);
          }
       }, 100)
-      // scene.on('click', this.onSceneClick, this);
     },
 
     updateSVGElements(svgConntainer) {
@@ -190,8 +197,8 @@ export default {
       api.updateSearchAlgorithm();
     },
 
-    onSceneClick(e) {
-      api.handleSceneClick(e);
+    onSceneClick(triggerRedraw) {
+      api.handleSceneClick(triggerRedraw);
     },
   }
 }

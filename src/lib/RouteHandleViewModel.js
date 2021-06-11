@@ -17,10 +17,13 @@ class RouteHandleViewModel {
     this.pointId = graphNode.id;
     this.x = graphNode.data.x;
     this.y = graphNode.data.y;
-
     this.pointChanged(this);
   }
-  
+
+  triggerReDraw() {
+    // this.pointChanged(this);
+  }
+
   clear() {
     this.visible = false;
     this.pointId = -1;

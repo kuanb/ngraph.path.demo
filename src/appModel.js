@@ -114,45 +114,16 @@ function updateRoute() {
 
   let fromId = routeStart.pointId;
   let toId = routeEnd.pointId;
-  updateQueryString();
 
-  let start = window.performance.now();
   let path = findPath(fromId, toId);
-  let end = window.performance.now() - start;
 
   api.pathInfo.noPath = path.length === 0;
   api.pathInfo.svgPath = getSvgPath(path);
   if (path.length > 0) {
     api.pathInfo.svgPaths.push(api.pathInfo.svgPath);
   }
-
-  stats.lastSearchTook = (Math.round(end * 100)/100) + 'ms';
-  stats.pathLength = getPathLength(path);
-  stats.visible = true;
 }
 
-function updateQueryString() {
-  if (pendingQueryStringUpdate) {
-    // iOS doesn't like when we update query string too often.
-    // need to throttle
-    clearTimeout(pendingQueryStringUpdate);
-    pendingQueryStringUpdate = 0;
-  } 
-
-  pendingQueryStringUpdate = setTimeout(() => {
-    pendingQueryStringUpdate = 0;
-    if(!(routeStart.visible && routeEnd.visible)) return;
-
-    let fromId = routeStart.pointId;
-    let toId = routeEnd.pointId;
-    if (qs.get('fromId') != fromId) {
-      qs.set('fromId', fromId)
-    }
-    if (qs.get('toId') !== toId) {
-      qs.set('toId', toId);
-    }
-  }, 400);
-}
 
 function getPathLength(path) {
   let totalLength = 0;
@@ -171,17 +142,17 @@ function clearRoute() {
   });
 }
 
-function handleSceneClick(e) {
+function handleSceneClick(triggerRedraw) {
   if (!routeStart.visible) {
-    setRoutePointFormEvent(e, routeStart);
+    setRoutePointFormEvent(routeStart, triggerRedraw);
   } else if (!routeEnd.visible) {
-    setRoutePointFormEvent(e, routeEnd);
+    setRoutePointFormEvent(routeEnd, triggerRedraw);
   } else {
     clearRoute();
   }
 }
 
-function setRoutePointFormEvent(e, routePointViewModel) {
+function setRoutePointFormEvent(routePointViewModel, triggerRedraw) {
   if (!hetTestTree) return; // we are not initialized yet.
   if (!loadedPoints) return;
 
@@ -191,6 +162,10 @@ function setRoutePointFormEvent(e, routePointViewModel) {
   if (!point) throw new Error('Point should be defined at this moment');
 
   routePointViewModel.setFrom(point);
+
+  if (triggerRedraw) {
+    routePointViewModel.triggerReDraw();
+  }
 }
 
 function loadPositions() {
